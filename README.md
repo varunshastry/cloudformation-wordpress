@@ -1,11 +1,11 @@
 # cloudformation-wordpress
 
 The repo consists of cloudformation template files that could be used to create a wordpress web site with a given DNS name. Keeping modularity and maintainability, 3 files are created, 1 for each logical group of resources:
-  1. Network stack (VPC and Subnet)
-  2. Web app stack (EC2 instances, ELB, SecurityGroup)
-  3. Database stack (RDS, SecurityGroup)
+  1. Network stack (VPC, Subnet, SecurityGroup)
+  2. Web app stack (EC2 instances, ELB, Wordpress installation using chef)
+  3. Database stack (RDS)
 
-Database stack is dependent on Web app stack, which is in turn dependent on Network stack.
+Database stack and Web app stack are dependent on Network stack.
 
 AMI support info:
   OS : Ubuntu 16.04 LTS
