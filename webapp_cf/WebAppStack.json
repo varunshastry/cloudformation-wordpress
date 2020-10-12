@@ -3,12 +3,56 @@
     "Description": "AWS CloudFormation Cross-Stack Reference Sample Template: Demonstrates how to reference resources from a different stack. This template provisions an EC2 instance in an EC2 Security Group provisioned in a different stack. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "Parameters": {
         "NetworkStack": {
-            "Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
+            "Description": "Name of an active CloudFormation stack that contains the networking resources, such as VPC, subnet and security group, which will be used in this stack.",
             "Type": "String",
             "MinLength": 1,
             "MaxLength": 255,
             "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
             "Default": "VpcSecurityGroupSubnetStack"
+        },
+        "DBInstance": {
+            "Description": "Name of a database instance which will be used in this stack.",
+            "Type": "String",
+            "MinLength": 1,
+            "MaxLength": 255,
+            "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
+            "Default": "DBInstance"
+        },
+        "DBHost": {
+            "Default": "wordpressdb",
+            "Description": "The WordPress web app database",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "64",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBName": {
+            "NoEcho": "true",
+            "Description": "The WordPress database admin account user name",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "16",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBUser": {
+            "NoEcho": "true",
+            "Description": "The WordPress database admin account user name",
+            "Type": "String",
+            "MinLength": "1",
+            "MaxLength": "16",
+            "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+            "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+        },
+        "DBPassword": {
+            "NoEcho": "true",
+            "Description": "The WordPress database admin account password",
+            "Type": "String",
+            "MinLength": "8",
+            "MaxLength": "41",
+            "AllowedPattern": "[a-zA-Z0-9]*",
+            "ConstraintDescription": "must contain only alphanumeric characters."
         },
         "EC2KeyPair": {
             "Description": "Name of an existing EC2 key pair to enable SSH access to the instances",
@@ -26,15 +70,6 @@
                 "t2.large"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type (only 't2' family)."
-        },
-        "SSHLocation": {
-            "Description": "The IP address range that can be used to SSH to the EC2 instances",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "0.0.0.0/0",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the for x.x.x.x/x."
         },
         "WebServerCapacity": {
             "Default": "1",
@@ -704,10 +739,7 @@
                                             "'\n",
                                             "normal['wordpress']['db']['host'] = '",
                                             {
-                                                "Fn::GetAtt": [
-                                                    "DBInstance",
-                                                    "Endpoint.Address"
-                                                ]
+                                                "Ref": "DBHost"
                                             },
                                             "'\n",
                                             "normal['wordpress']['db']['name'] = '",
@@ -794,7 +826,9 @@
                 },
                 "SecurityGroups": [
                     {
-                        "Ref": "WebServerSecurityGroup"
+                        "Fn::ImportValue": {
+                            "Fn::Sub": "${NetworkStack}-WebServerSecurityGroupID"
+                        }
                     }
                 ],
                 "KeyName": {
@@ -804,7 +838,9 @@
                     {
                         "GroupSet": [
                             {
-                                "Ref": "WebServerSecurityGroup"
+                                "Fn::ImportValue": {
+                                    "Fn::Sub": "${NetworkStack}-WebServerSecurityGroupID"
+                                }
                             }
                         ],
                         "AssociatePublicIpAddress": "true",
@@ -852,39 +888,6 @@
                     }
                 }
             }
-        },
-        "WebServerSecurityGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
-            "Properties": {
-                "GroupDescription": "Enable HTTP access via port 80 locked down to the load balancer + SSH access",
-                "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "80",
-                        "ToPort": "80",
-                        "SourceSecurityGroupOwnerId": {
-                            "Fn::GetAtt": [
-                                "ElasticLoadBalancer",
-                                "SourceSecurityGroup.OwnerAlias"
-                            ]
-                        },
-                        "SourceSecurityGroupName": {
-                            "Fn::GetAtt": [
-                                "ElasticLoadBalancer",
-                                "SourceSecurityGroup.GroupName"
-                            ]
-                        }
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "CidrIp": {
-                            "Ref": "SSHLocation"
-                        }
-                    }
-                ]
-            }
         }
     },
     "Outputs": {
@@ -895,26 +898,12 @@
                     [
                         "http://",
                         {
-                            "Fn::GetAtt": [
-                                "ElasticLoadBalancer",
-                                "${DNSName}"
-                            ]
+                            "Ref": "DNSName"
                         }
                     ]
                 ]
             },
             "Description": "WordPress website"
-        },
-        "WebServerSecurityGroup": {
-            "Description": "The ssecurity group to which the web server is associated with",
-            "Value": {
-                "Ref": "WebServerSecurityGroup"
-            },
-            "Export": {
-                "Name": {
-                    "Fn::Sub": "${AWS::StackName}-WebServerSecurityGroupID"
-                }
-            }
         }
     }
 }

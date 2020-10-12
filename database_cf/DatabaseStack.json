@@ -2,13 +2,13 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS CloudFormation Template to create database stack for wordpress",
     "Parameters": {
-        "WebAppStackName": {
-            "Description": "Name of an active CloudFormation stack that contains the wordpress web application resources, that will be used in this stack.",
+        "NetworkStack": {
+            "Description": "Name of an active CloudFormation stack that contains the networking resources, such as VPC, subnet and security group, which will be used in this stack.",
             "Type": "String",
             "MinLength": 1,
             "MaxLength": 255,
             "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
-            "Default": "WebAppStack"
+            "Default": "VpcSecurityGroupSubnetStack"
         },
         "DBClass": {
             "Description": "Database instance class",
@@ -97,7 +97,6 @@
     "Resources": {
         "DBEC2SecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
-            "Condition": "Is-EC2-VPC",
             "Properties": {
                 "GroupDescription": "Open database for access",
                 "SecurityGroupIngress": [
@@ -107,7 +106,7 @@
                         "ToPort": "3306",
                         "SourceSecurityGroupName": {
                             "Fn::ImportValue": {
-                                "Fn::Sub": "${WebAppStackName}-WebServerSecurityGroupID"
+                                "Fn::Sub": "${NetworkStack}-WebServerSecurityGroupID"
                             }
                         }
                     }
@@ -116,12 +115,11 @@
         },
         "DBSecurityGroup": {
             "Type": "AWS::RDS::DBSecurityGroup",
-            "Condition": "Is-EC2-Classic",
             "Properties": {
                 "DBSecurityGroupIngress": {
                     "EC2SecurityGroupName": {
                         "Fn::ImportValue": {
-                            "Fn::Sub": "${WebAppStackName}-WebServerSecurityGroupID"
+                            "Fn::Sub": "${NetworkStack}-WebServerSecurityGroupID"
                         }
                     }
                 },
@@ -151,33 +149,13 @@
                     "Ref": "DBPassword"
                 },
                 "VPCSecurityGroups": {
-                    "Fn::If": [
-                        "Is-EC2-VPC",
-                        [
-                            {
-                                "Fn::GetAtt": [
-                                    "DBEC2SecurityGroup",
-                                    "GroupId"
-                                ]
-                            }
-                        ],
-                        {
-                            "Ref": "AWS::NoValue"
-                        }
+                    "Fn::GetAtt": [
+                        "DBEC2SecurityGroup",
+                        "GroupId"
                     ]
                 },
                 "DBSecurityGroups": {
-                    "Fn::If": [
-                        "Is-EC2-Classic",
-                        [
-                            {
-                                "Ref": "DBSecurityGroup"
-                            }
-                        ],
-                        {
-                            "Ref": "AWS::NoValue"
-                        }
-                    ]
+                    "Ref": "DBSecurityGroup"
                 }
             }
         }
