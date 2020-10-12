@@ -2,7 +2,7 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "AWS CloudFormation Cross-Stack Reference Sample Template: Demonstrates how to reference resources from a different stack. This template provisions an EC2 instance in an EC2 Security Group provisioned in a different stack. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
     "Parameters": {
-        "NetworkStackName": {
+        "NetworkStack": {
             "Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
             "Type": "String",
             "MinLength": 1,
@@ -10,7 +10,7 @@
             "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
             "Default": "VpcSecurityGroupSubnetStack"
         },
-        "KeyName": {
+        "EC2KeyPair": {
             "Description": "Name of an existing EC2 key pair to enable SSH access to the instances",
             "Type": "AWS::EC2::KeyPair::KeyName",
             "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
@@ -798,7 +798,7 @@
                     }
                 ],
                 "KeyName": {
-                    "Ref": "KeyName"
+                    "Ref": "EC2KeyPair"
                 },
                 "NetworkInterfaces": [
                     {
@@ -812,7 +812,7 @@
                         "DeleteOnTermination": "true",
                         "SubnetId": {
                             "Fn::ImportValue": {
-                                "Fn::Sub": "${NetworkStackName}-SubnetID"
+                                "Fn::Sub": "${NetworkStack}-SubnetID"
                             }
                         }
                     }
