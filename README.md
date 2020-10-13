@@ -31,3 +31,8 @@ AMI support info:
             }
 
 ** Trying to run this template on any other "arch" type would result in "unsupported" error.
+
+Considering that the templates and parameter-files are stored in S3, the cloud-formation stacks could be created using the following commands:
+  1. aws cloudformation create-stack --stackname VpcSecurityGroupSubnetStack --template-body https://bucket-name.s3.amazonaws.com/wordpress_cf/database/VpcSecurityGroupSubnetStack.json --parameters https://bucket-name.s3.amazonaws.com/wordpress_cf/database/VpcSecurityGroupSubnetStack_params.json
+  2. aws cloudformation create-stack --stackname DatabaseStack --template-body https://bucket-name.s3.amazonaws.com/wordpress_cf/database/DatabaseStack.json --parameters https://bucket-name.s3.amazonaws.com/wordpress_cf/database/DatabaseStack_params.json
+  3. aws cloudformation create-stack --stackname WebAppStack --template-body https://bucket-name.s3.amazonaws.com/wordpress_cf/webapp/WebAppStack.json --parameters https://bucket-name.s3.amazonaws.com/wordpress_cf/webapp/WebAppStack_params.json

@@ -1,0 +1,30 @@
+[
+    {
+        "ParameterKey": "NetworkStack",
+        "ParameterValue": "VpcSecurityGroupSubnetStack"
+    },
+    {
+        "ParameterKey": "DBClass",
+        "ParameterValue": "db.t2.small"
+    },
+    {
+        "ParameterKey": "DBName",
+        "ParameterValue": "wordpressdb"
+    },
+    {
+        "ParameterKey": "DBUser",
+        "ParameterValue": "wordpressdbusername"
+    },
+    {
+        "ParameterKey": "DBPassword",
+        "ParameterValue": "wordpressdbpwd"
+    },
+    {
+        "ParameterKey": "MultiAZDatabase",
+        "ParameterValue": "false"
+    },
+    {
+        "ParameterKey": "DBAllocatedStorage",
+        "ParameterValue": "10"
+    }
+]

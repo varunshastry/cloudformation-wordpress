@@ -10,14 +10,6 @@
             "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
             "Default": "VpcSecurityGroupSubnetStack"
         },
-        "DBInstance": {
-            "Description": "Name of a database instance which will be used in this stack.",
-            "Type": "String",
-            "MinLength": 1,
-            "MaxLength": 255,
-            "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
-            "Default": "DBInstance"
-        },
         "DBHost": {
             "Default": "wordpressdb",
             "Description": "The WordPress web app database",

@@ -1,0 +1,38 @@
+[
+    {
+        "ParameterKey": "NetworkStack",
+        "ParameterValue": "VpcSecurityGroupSubnetStack"
+    },
+    {
+        "ParameterKey": "DBHost",
+        "ParameterValue": "10.1.2.3"
+    },
+    {
+        "ParameterKey": "DBName",
+        "ParameterValue": "wordpressdb"
+    },
+    {
+        "ParameterKey": "DBUser",
+        "ParameterValue": "wordpressdbusername"
+    },
+    {
+        "ParameterKey": "DBPassword",
+        "ParameterValue": "wordpressdbpwd"
+    },
+    {
+        "ParameterKey": "KeyPairName",
+        "ParameterValue": "EC2KeyPair"
+    },
+    {
+        "ParameterKey": "InstanceType",
+        "ParameterValue": "t2.micro"
+    },
+    {
+        "ParameterKey": "WebServerCapacity",
+        "ParameterValue": "3"
+    },
+    {
+        "ParameterKey": "DNSName",
+        "ParameterValue": "my_wordpress_site"
+    }
+]
